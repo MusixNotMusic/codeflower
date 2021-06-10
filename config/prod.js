@@ -1,0 +1,2 @@
+export const db = "mongodb://codeflower:codeflower123@dds-2ze2c44ee9d940c41.mongodb.rds.aliyuncs.com:3717,dds-2ze2c44ee9d940c42.mongodb.rds.aliyuncs.com:3717/codeflower";
+export const baseUrl = "http://weibo.idatage.com";
