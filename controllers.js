@@ -1,4 +1,3 @@
-import * as Router from 'koa-router'
 import Xlsx from './tasks/export/xlsx'
 import Queues from './models/queues'
 import Weibos from './models/weibos'
@@ -6,24 +5,17 @@ import Records from './models/records'
 import { exist } from './models/common'
 import * as mongoose from 'mongoose'
 import { config } from './_base'
-const http = require('http');
 const EventEmitter = require('events');
-// const convert = require('koa-convert');
-const cors = require('koa-cors');
 const path = require('path');
-const bodyparser = require('koa-bodyparser');
 const fs = require('fs');
 const _ = require('lodash');
 const parse_url = require('./lib/url_mid');
-const logger = require('koa-logger');
-const compress = require('koa-compress')
-const route = new Router();
 const archiver = require('archiver');
 
-
 export default class Server extends EventEmitter {
-    constructor(app) {
+    constructor(app, route) {
         super();
+        
         this.app = app;
         this.server = '';
         const getBStatus = this.status_tasks.bind(this);
@@ -32,7 +24,6 @@ export default class Server extends EventEmitter {
 
         const getCheck = this.check_tasks.bind(this);
         const getBDelete = this.delete_tasks.bind(this);
-        // const getPiece = this.get_piece.bind(this);
         const getStatus = this.get_status.bind(this);
         const getData = this.complete_task.bind(this);
         const launch = this.start_task.bind(this);
@@ -45,7 +36,6 @@ export default class Server extends EventEmitter {
         route.post('/bstatus.json', getBStatus);
         route.post('/bdelete.json', getBDelete);
         route.post('/bexport.json', getBExport);
-        // route.get('/piece.json', getPiece);
         route.get('/status.json', getStatus);
         route.get('/data.json', getData);
         route.get('/launch.json', launch);
@@ -53,17 +43,6 @@ export default class Server extends EventEmitter {
         route.get('/exist.json', exist);
         route.get('/delete.json', del);
         route.get('/getAllMid', getAllMid)
-        app.use(logger());
-        app.use(cors());
-        app.use(bodyparser());
-        app.use(route.routes());
-        app.use(compress({
-            filter: function(content_type) {
-                return /text/i.test(content_type)
-            },
-            threshold: 2048,
-            flush: require('zlib').Z_SYNC_FLUSH
-        }))
     }
 
     async init() {
@@ -239,8 +218,9 @@ export default class Server extends EventEmitter {
         let mid = this.getMid(ctx.request.query)
         let result = await Weibos.get(mid);
         if (result) {
-            ctx.setCo
             ctx.body = result;
+            ctx.compress = true
+            ctx.set('Content-Type', 'text/plain')
         } else {
             ctx.body = { message: "task uncomplete", code: 1004 };
         }

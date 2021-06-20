@@ -1,7 +1,30 @@
+import * as Router from 'koa-router'
 var Koa = require('koa');
+const cors = require('koa-cors');
+const path = require('path');
+const bodyparser = require('koa-bodyparser');
+const logger = require('koa-logger');
+const compress = require('koa-compress')
 import Server from './controllers';
 var app = new Koa();
-var server = new Server(app);
+const route = new Router();
+const zlib = require('zlib')
+app.use(logger());
+// app.use(cors());
+// app.use(bodyparser());
+// app.use(route.routes());
+app.use(compress({
+    threshold: 1024,
+    gzip: {
+        flush: zlib.constants.Z_SYNC_FLUSH
+    },
+    deflate: {
+        flush: zlib.constants.Z_SYNC_FLUSH,
+    },
+})).use(cors())
+   .use(bodyparser())
+   .use(route.routes())
+var server = new Server(app, route);
 
 var config = require(__dirname + '/config/nuxt.js');
 var Nuxt = require('nuxt');
