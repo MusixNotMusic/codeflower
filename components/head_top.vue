@@ -1,14 +1,14 @@
 <template>
     <header>
         <div class="header-logo">
-            <div class="logo-title">微博分析工具</div> 
+            <!-- <div class="logo-title">微博分析工具</div>  -->
         </div>
         <div class="header-mid">
             <div class="header-search">
                 <div class="input-wrap" ref="inputBox">
                     <input type="text" ref="input" @keyup.enter="to_check" placeholder="可以输入微博地址进行分析 或者 mid" @focus="focusHandle" v-model="url">
                     <ul v-if="onFocus" class="search-mid-box">
-                        <li v-for="(mid, index) in midList" :class="{'active': index === activeMidIndex}" @click="clickMidHandle(index, mid)">{{mid}}</li>
+                        <li v-for="(mid, index) in midList" :class="{'active': index === activeMidIndex}" @click="clickMidHandle(index, mid)" :key="index">{{mid}}</li>
                         <div v-if="!midList || midList.length === 0" class="nodata">暂无数据</div>
                     </ul>  
                 </div>
@@ -23,20 +23,11 @@
             <li @click="on_click(5)" :class="['type6',(light&32)?'active':'']"></li>
             <li @click="on_click(6)" :class="['type7',(light&64)?'active':'']"></li>-->
             </ul>
-            <button :class="['select',history?'open':'']" @click='open_history'>
-            历史操作
-            <i v-bind:class="[history?'fa fa-angle-down':'fa fa-angle-right']"></i>
-            <ul v-bind:style="{display: (history? 'block': 'none')}" style="z-index:120;">
-                <li v-for="(item, $index) in $store.state.header.history.stack" @click="recover(item.name, $index)">
-                {{'设置'+item.name+': '+(item.content.keyword.length > 0? item.content.keyword: '取消') }}
-                </li>
-            </ul>
-            </button>
         </div>
         <div class="header-right">
-            <div :class="[is_hidpi?'header-hidpi-active':'header-hidpi-inactive']" @click="hidpi"><span class="hidpi">{{is_hidpi?'高清':'普通'}}</span></div>
-            <div class="header-share" @click="share"></div>
-            <div class="header-document"><span class="hidpi"><a style="color:white;" :href="document" download="idatage_weibo_help.pdf">下载使用文档</a></span></div>
+            <!-- <div :class="[is_hidpi?'header-hidpi-active':'header-hidpi-inactive']" @click="hidpi"><span class="hidpi">{{is_hidpi?'高清':'普通'}}</span></div> -->
+            <!-- <div class="header-share" @click="share"></div> -->
+            <!-- <div class="header-document"><span class="hidpi"><a style="color:white;" :href="document" download="idatage_weibo_help.pdf">下载使用文档</a></span></div> -->
             <div class="header-login">
                 <!--<login></login>-->
                 <!--<span>登录</span>
@@ -92,15 +83,10 @@
                     </div>
                     <div class="el-dialog__footer">
                             <span  class="dialog-footer">
-                                <el-button type="danger" 
-                                    v-if="dialog_context.operate_code&2"
-                                    @click="reload_data" 
-                                    size="small">重新加载</el-button>
-
                                 <el-button type="info"
                                         v-if="dialog_context.operate_code&1"
                                         @click="load_data" 
-                                        size="small">直接加载</el-button>
+                                        size="small">加载</el-button>
                            </span>
                     </div>
                 </div>
@@ -382,6 +368,7 @@ export default {
 
      focusHandle () {
          this.onFocus = true
+         this.getAllMid()
      },
      getAllMid () {
         axios.get("/getAllMid").then((data) => {
